@@ -6,7 +6,7 @@ module.exports = async (client, message) => {
 		client.commands.get(cmd) ||
 		client.commands.find( c => c.aliases && c.aliases.includes(cmd));
 
-	if (command.inVoiceChannel && !message.member.voice.channel) 
+	if (command && command.inVoiceChannel && !message.member.voice.channel) 
 		return message.channel.send(`Tienes que estar en un canal de voz, pendejo`);
 	
 	if (command) command.run(client, message, args);
