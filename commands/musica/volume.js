@@ -10,6 +10,6 @@ module.exports = {
 		if (isNaN(volume)) 
 			return message.channel.send(`No te quieras pasar de listo jovencito`)
 		queue.setVolume(volume)
-		message.channel.send(`Volumen puesto en \`${volume}\``)
+		message.channel.send(`📢 Volumen puesto en \`${volume}\``)
     }
 }

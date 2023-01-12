@@ -9,6 +9,10 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.8.0",
+    "@distube/deezer": "^1.0.0",
+    "@distube/soundcloud": "^1.3.0",
+    "@distube/spotify": "^1.5.1",
+    "@distube/yt-dlp": "^1.1.3",
     "discord.js": "^14.6.0",
     "distube": "^4.0.4",
     "dotenv": "^16.0.3",
