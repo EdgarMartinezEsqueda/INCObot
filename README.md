@@ -2,7 +2,7 @@
 
 Las carpetas tienen lo siguiente:
 
-- **commands**: Todos los comandos que obtendrá el bot, los dividí en carpetas para no tener todo desordenado.
+- **commands**: Todos los comandos que obtendrá el bot, los dividí en carpetas (info, mentadas, musica, random y tenor) para no tener todo desordenado.
 - **config**: Conexión a la base de datos en MongoDB, por si deseara reactivar los comandos con contadores.
 - **events**: 
 - - client: eventos propios del bot, cuando inicie sesión por ejemplo se ejecutará el archivo 'ready.js'.
