@@ -22,6 +22,7 @@ module.exports = {
                 { name: "!morraschidas", value: "( ͡° ͜ʖ ͡°)"},
                 { name: "!monaschinas", value: "By: Alex"},
                 { name: "!server", value: "Wacha la información de los servers actuales"},
+                { name: "!clima <lugar>", value: "Obten el clima del lugar que quieras"},
                 { name: "**Sección de Música**", value: '*Necesitas estar en un canal de voz*' },
                 { name: "!play <canción>", value: "Reproducir una canción 🎵" },
                 { name: "!queue", value: "Ve la cola de reproducción (no lo uses si hay demasiadas canciones, morirá el bot)" },

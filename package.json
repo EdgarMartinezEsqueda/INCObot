@@ -24,6 +24,7 @@
     "fs": "^0.0.2",
     "libsodium-wrappers": "^0.7.11",
     "mongoose": "^7.0.3",
+    "node-fetch": "^2.6.11",
     "openai": "^3.2.1",
     "opusscript": "^0.0.8",
     "tenorjs": "^1.0.10"
