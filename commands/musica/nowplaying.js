@@ -1,3 +1,5 @@
+const { EmbedBuilder } = require('discord.js');
+
 module.exports = {
     name: "nowplaying",
     aliases: ["np"],
@@ -6,6 +8,16 @@ module.exports = {
 		const queue = client.DisTube.getQueue(message)
 		if (!queue) return message.channel.send(` No hay musica reproduciendose, mamón`)
 		const song = queue.songs[0]
-		message.channel.send(`🎵 𝘌𝘴𝘵𝘢𝘮𝘰𝘴 𝘦𝘴𝘤𝘶𝘤𝘩𝘢𝘯𝘥𝘰 **\`${song.name}\`**, por ${song.user}`)
+		const Embed = new EmbedBuilder()
+            .setTitle(`Estamos escuchando ahora:`)
+            .setDescription( song.name )
+            .setURL(song.url)
+            .addFields(
+                { name: "Duración", value: song.formattedDuration, inline: true },
+            )
+            .setThumbnail( song.thumbnail )
+            .setColor('#B63674');
+        
+        message.channel.send( { embeds: [Embed] } );
     }
 }
