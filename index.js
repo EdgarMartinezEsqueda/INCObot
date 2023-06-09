@@ -10,7 +10,6 @@ const client = new Discord.Client({
         Discord.GatewayIntentBits.GuildVoiceStates,
 		Discord.GatewayIntentBits.GuildMembers,
 		Discord.GatewayIntentBits.MessageContent,
-        
     ]
 });
 
