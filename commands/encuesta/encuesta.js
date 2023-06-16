@@ -12,7 +12,7 @@ module.exports = {
             const pregunta = datos[0];
             const opciones = datos.slice(1);
             
-            if (opciones.length > emojiList.length) 
+            if (opciones.length > emojis.length) 
                 return message.channel.send('Demasiadas opciones para este pobre bot 💀');
             
             const Embed = new EmbedBuilder()
