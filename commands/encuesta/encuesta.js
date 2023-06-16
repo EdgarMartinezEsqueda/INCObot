@@ -11,6 +11,8 @@ module.exports = {
             const datos = args.join(" ").split(".");
             const pregunta = datos[0];
             const opciones = datos.slice(1);
+            //Add the emojis to the options
+            opciones.forEach( (opcion, i) => opciones[i] = `${String.fromCodePoint( emojis[i].codePointAt(0) - 65 + 0x1f1e6)} - ${opcion}` );
             
             if (opciones.length > emojis.length) 
                 return message.channel.send('Demasiadas opciones para este pobre bot 💀');
