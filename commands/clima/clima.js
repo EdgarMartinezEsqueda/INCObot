@@ -37,17 +37,18 @@ module.exports = {
                     ? opcionesNublado[data.weather[0].description] 
                     : opcionesClima[data.weather[0].main];
                 
-                // Calculate the color value based on the number
-                const red = Math.floor((50 - data.main.temp) * (255 / 50));
-                const green = Math.floor(data.main.temp * (255 / 50));
-                const blue = Math.floor((50 - Math.abs(data.main.temp - 25)) * (255 / 50));
-                
-                // Convert the RGB values to HEX format
-                const hex = ((red << 16) | (green << 8) | blue).toString(16).padStart(6, '0');
-                
-                // Return the HEX color code
-                const color = `#${hex}`;
-                
+                const hue = (data.main.temp / 50) * 240; // Calculate the hue value based on the number
+                const saturation = 100; // Set a constant saturation value
+                const lightness = 50; // Set a constant lightness value
+
+                const convertedHue = Math.floor((hue / 360) * 255); // Convert the hue value to RGB range (0-255)
+                const convertedSaturation = Math.floor((saturation / 100) * 255); // Convert the saturation value to RGB range (0-255)
+                const convertedLightness = Math.floor((lightness / 100) * 255); // Convert the lightness value to RGB range (0-255)
+
+                const rgbColor = `rgb(${convertedHue}, ${convertedSaturation}, ${convertedLightness})`; // Create an RGB color string
+
+                const color = "#" + ((1 << 24) + (convertedHue << 16) + (convertedSaturation << 8) + convertedLightness).toString(16).slice(1); // Convert the color to HEX format
+
                 const Embed = new EmbedBuilder()
                     .setTitle(`Clima en ${location}`)
                     .setDescription( description )
