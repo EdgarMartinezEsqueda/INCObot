@@ -61,7 +61,7 @@ module.exports = {
                     ? opcionesNublado[data.weather[0].description] 
                     : opcionesClima[data.weather[0].main];
                 
-                const color = getColorCode();
+                const color = getColorCode( data.main.temp );
 
                 const Embed = new EmbedBuilder()
                     .setTitle(`Clima en ${location}`)
