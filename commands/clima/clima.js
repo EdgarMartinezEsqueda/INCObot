@@ -18,6 +18,30 @@ const opcionesNublado = {
     "overcast clouds": "Nublado: 85 - 100%"
 };
 
+function getColorCode(number) {
+    const hue = 210 - ((number / 50) * 210); //obtener el valor del numero, 0 -> azul y 210 -> rojo
+    const rgb = hslToRgb(hue / 360, 1, 0.5); //valor normalizado del valor, una saturación de 1 y una luminosidad de 0.5
+    return rgb.map(component => Math.round(component * 255));   // redondear cada valor en un rango de 0 a 255
+}
+
+function hslToRgb(h, s, l) {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue2rgb = (p, q, t) => {  //conversión a RGB
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+    };
+    return [
+        hue2rgb(p, q, h + 1 / 3),
+        hue2rgb(p, q, h),
+        hue2rgb(p, q, h - 1 / 3)
+    ];
+}
+
 module.exports = {
     name: "clima",
     aliases: ["temperatura", "temp"],
@@ -37,17 +61,7 @@ module.exports = {
                     ? opcionesNublado[data.weather[0].description] 
                     : opcionesClima[data.weather[0].main];
                 
-                const hue = (data.main.temp / 50) * 240; // Calculate the hue value based on the number
-                const saturation = 100; // Set a constant saturation value
-                const lightness = 50; // Set a constant lightness value
-
-                const convertedHue = Math.floor((hue / 360) * 255); // Convert the hue value to RGB range (0-255)
-                const convertedSaturation = Math.floor((saturation / 100) * 255); // Convert the saturation value to RGB range (0-255)
-                const convertedLightness = Math.floor((lightness / 100) * 255); // Convert the lightness value to RGB range (0-255)
-
-                const rgbColor = `rgb(${convertedHue}, ${convertedSaturation}, ${convertedLightness})`; // Create an RGB color string
-
-                const color = "#" + ((1 << 24) + (convertedHue << 16) + (convertedSaturation << 8) + convertedLightness).toString(16).slice(1); // Convert the color to HEX format
+                const color = getColorCode();
 
                 const Embed = new EmbedBuilder()
                     .setTitle(`Clima en ${location}`)
