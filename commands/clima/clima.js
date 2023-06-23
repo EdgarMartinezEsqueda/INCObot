@@ -13,7 +13,7 @@ const opcionesClima = {
 };
 const opcionesNublado = {
     "few clouds": "Algunas nubes: 11 - 25%",
-    "scattered clouds:": "Nubes dispersas: 25 - 50%",
+    "scattered clouds": "Nubes dispersas: 25 - 50%",
     "broken clouds": "Nubes entrecortadas: 50 - 84%",
     "overcast clouds": "Nublado: 85 - 100%"
 };
