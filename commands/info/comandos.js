@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, Formatters, Embed } = require('discord.js');
 const commands = require('./commands.json');    // get all commands
 
 const categories = {};
@@ -32,14 +32,22 @@ module.exports = {
         args.forEach( cmd => {
             cmd = cmd.toLowerCase();
             
-            let comando = Object.entries(commandsGeneral).concat(Object.entries(commandsMusic)).filter(([k]) => k.includes(cmd) );
-            comando = comando.length ? comando.flat() : ['✖','Comando no encontrado'];   // command.length = 0 means NOT FOUND
-            
-            const Embed = new EmbedBuilder()
-                .setTitle(`Comando ${comando[0]}`)
-                .setDescription( comando[1] )
-                .setColor("#A5CDE8");
-            message.channel.send( { embeds:   [Embed] });
+            let comando = commands.filter(obj => obj.name.includes(cmd) );
+            if ( !comando.length )   // command.length = 0 means NOT FOUND
+                return message.channel.send( { embeds: [ new EmbedBuilder().setTitle('Comando no encontrado').setColor("6C102B") ]})
+
+            for( const cmdFound of comando){
+                const Embed = new EmbedBuilder()
+                    .setTitle(`Comando ${cmdFound.name}`)
+                    .setDescription( cmdFound.description )
+                    .addFields( 
+                        { name: 'Alias', value: cmdFound.aliases.join(' | ') || '**N/A**', inline: true },
+                        { name: 'Uso', value: "*" + cmdFound.usage + "*", inline: true  },
+                        { name: 'Ejemplo', value: "```" + cmdFound.example + "```" }
+                    )
+                    .setColor("#A5CDE8");
+                message.channel.send( { embeds:   [Embed] });
+            }
         })
     }
 };
