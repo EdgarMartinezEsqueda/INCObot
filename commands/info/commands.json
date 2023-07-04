@@ -1,0 +1,170 @@
+[
+    {
+        "name": "!info",
+        "description": "Obten información de todos los comandos del bot",
+        "usage": "!info",
+        "example": "!info",
+        "alias": ["info", "información", "información", "help", "ayuda", "commands"],
+        "category": "General"
+    },
+    {
+        "name": "!pito",
+        "description": "Deja que el bot adivine cuanto te mide el pito 🥵",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!pareja",
+        "description": "Descubre cuanta probabilidad tienes de ser pareja con un usuario al azar del servidor 👀",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!pareja <usuario>",
+        "description": "Etiqueta a un usuario y descubre cuanta probabilidad tienes de ser pareja con el usuario ingresado 😈",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!volado",
+        "description": "Aguila o Sello, no hay más que agregar",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!equipos <participantes separados por espacio> <Cantidad de integrantes>",
+        "description": "¿Cansado de no saber como formar equipos para la escuela? ¡Este comando te ayuda en eso!",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!ctm <usuario>",
+        "description": "Recuerdale al usuario su madresita",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!morraschidas",
+        "description": "( ͡° ͜ʖ ͡°)",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!monaschinas",
+        "description": "By: Alex",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!server",
+        "description": "Wacha la información de los servers actuales",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!clima <lugar>",
+        "description": "Obten el clima del lugar que quieras",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!encuesta <pregunta>.<opcion1>.<opcion2>...",
+        "description": "Crea encuesta de manera fácil, solo separa tanto la pregunta como las opciones con un punto <.>",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "General"
+    },
+    {
+        "name": "!play <canción>",
+        "description": "Reproducir una canción 🎵",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!queue",
+        "description": "Ve la cola de reproducción (no lo uses si hay demasiadas canciones, morirá el bot)",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!shuffle",
+        "description": "Mezcla la cola de reproducción si no estás conforme con el orden",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!nowplaying",
+        "description": "Obtén el nombre de la canción que se esté escuchando",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!skip",
+        "description": "Quita alv la canción",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!volume <numero>",
+        "description": "Súbele o bájale, tú decides",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!repeat <no | song | queue>",
+        "description": "Modo de repetir, por defecto es NO",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!clear",
+        "description": "Limpia la cola de reproducción (únicamente se quedará la que esté sonando en el momento)",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    },
+    {
+        "name": "!leave",
+        "description": "No dejes al bot solo, sácalo del canal de voz",
+        "usage": "",
+        "example": "",
+        "alias": [""],
+        "category": "Música"
+    }
+]
