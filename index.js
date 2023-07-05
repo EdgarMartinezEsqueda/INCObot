@@ -1,5 +1,5 @@
 require("dotenv").config();
-//require("./config/database.js");
+require("./config/database.js");
 const Discord = require("discord.js");
 const noPares = require("./server.js");
 
