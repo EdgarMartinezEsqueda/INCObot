@@ -96,6 +96,38 @@
         "category": "General"
     },
     {
+        "name": "!cornejo",
+        "description": "Recuerdale su madresita a Cornejo",
+        "usage": "!cornejo",
+        "example": "!cornejo",
+        "aliases": [""],
+        "category": "General"
+    },
+    {
+        "name": "!horacio",
+        "description": "Que Chingue su madre el papá del Malandro",
+        "usage": "!horacio",
+        "example": "!horacio",
+        "aliases": [""],
+        "category": "General"
+    },
+    {
+        "name": "!ctmpro",
+        "description": "Eso no está pro",
+        "usage": "!ctmpro",
+        "example": "!ctmpro",
+        "aliases": [""],
+        "category": "General"
+    },
+    {
+        "name": "!pro",
+        "description": "¿Eso está pro? Aumenta el contador 😎",
+        "usage": "!pro",
+        "example": "!pro",
+        "aliases": [""],
+        "category": "General"
+    },
+    {
         "name": "!play",
         "description": "Pon una canción para escucharla 🎵 *Acepta el nombre de la canción o URL de Youtube o Spotify*",
         "usage": "!play <canción> | !play <URL>",
