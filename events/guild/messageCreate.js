@@ -1,6 +1,6 @@
 module.exports = async (client, message) => {
 	if (message.author.bot || !message.content.startsWith("!")) return;
-	const args = message.content.slice(1).trim().split(" ");
+	const args = message.content.slice(1).trim().split(" ").filter( arg => arg );
 	const cmd = args.shift()?.toLowerCase();
 	const command =
 		client.commands.get(cmd) ||
