@@ -198,5 +198,13 @@
         "example": "!leave",
         "aliases": ["salte"],
         "category": "Música"
+    },
+    {
+        "name": "!remind",
+        "description": "¿Eres olvidadizo o no conoces las agendas? Deja que el bot lo recuerde por ti **NO SE PUEDE TAGEAR A BOTS, NO MMS** **NO LO USES RESPONDIENDO UN MENSAJE**",
+        "usage": "!remind <usuario a quien recordar> <tiempo> <recordatorio>",
+        "example": "!remind @TuGfa 15s Recordatorio mamalon",
+        "aliases": ["remind", "recuerda", "recuerdame"],
+        "category": "General"
     }
 ]
