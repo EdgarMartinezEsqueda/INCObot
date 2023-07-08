@@ -10,6 +10,11 @@ module.exports = {
         // !remind <user> <time> <remind>           // args = [<user>, <time>, <remind>]
         const mentionedUser = message.mentions.users.first(); // Get the first mentioned user
         const userToRemind = mentionedUser?.id ?? message.author.id; // if there is no username, get the author
+        
+        const user = client.users.cache.get(userToRemind);
+
+        if (user.bot) return message.reply("No puedes tagear un bot aqui, no mms");
+        
         let time = args[1];
         let reminderMessage = args.slice(2).join(' ');
 
