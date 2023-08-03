@@ -204,7 +204,15 @@
         "description": "¿Eres olvidadizo o no conoces las agendas? Deja que el bot lo recuerde por ti **NO SE PUEDE TAGEAR A BOTS, NO MMS** **NO LO USES RESPONDIENDO UN MENSAJE**",
         "usage": "!remind <usuario a quien recordar> <tiempo> <recordatorio>",
         "example": "!remind @TuGfa 15s Recordatorio mamalon",
-        "aliases": ["remind", "recuerda", "recuerdame"],
+        "aliases": ["recuerda", "recuerdame"],
         "category": "General"
+    },
+    {
+        "name": "!blackjack",
+        "description": "La experiencia de jugar 21 contra el dealer ahora en el servidor de Discord\n**Todo se controla con botones**",
+        "usage": "!blackjack",
+        "example": "!bj",
+        "aliases": ["bj", "21", "veintiuno"],
+        "category": "Juegos"
     }
 ]
