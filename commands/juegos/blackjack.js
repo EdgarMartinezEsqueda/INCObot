@@ -72,52 +72,60 @@ async function game(message, playerHand, dealerHand, userStates, usuarioId){
 	});
 	const filter = (i) => i.user.id ===  message.mentions.users.first().id;	//Only the user who use the command can interact with it
 	
-	const userInteraction = await message.channel.awaitMessageComponent({
-		filter: filter,
-		time: 60000, // Time in milliseconds to wait for a button message 
-	});
-	
-	userInteraction.deferUpdate();	// This is a 'preventDefault'
-	
-	if (userInteraction.customId === "continue") {	// If the user wants to continue deal a card and continue
-		playerHand.push( dealCard() );
-		await game( message, playerHand, dealerHand, userStates, usuarioId);
-	} 
-	else if (userInteraction.customId === "stop") { // Dealer's Turn
-		let dealerHandValue = calculateHandValue(dealerHand);
-		currentData = await message.edit({
-			content: `Tus cartas:\`\`\`${displayHand(playerHand)} (${playerHandValue})\`\`\`Cartas del Croupier:\`\`\`${displayHand(dealerHand)} (${dealerHandValue})\`\`\``,
+	try{
+		const userInteraction = await message.channel.awaitMessageComponent({
+			filter: filter,
+			time: 20000, // Time in milliseconds to wait for a button message 
+		});
+		userInteraction.deferUpdate();	// This is a 'preventDefault'
+
+		if (userInteraction.customId === "continue") {	// If the user wants to continue deal a card and continue
+			playerHand.push( dealCard() );
+			await game( message, playerHand, dealerHand, userStates, usuarioId);
+		} 
+		else if (userInteraction.customId === "stop") { // Dealer's Turn
+			let dealerHandValue = calculateHandValue(dealerHand);
+			currentData = await message.edit({
+				content: `Tus cartas:\`\`\`${displayHand(playerHand)} (${playerHandValue})\`\`\`Cartas del Croupier:\`\`\`${displayHand(dealerHand)} (${dealerHandValue})\`\`\``,
+				components: []
+			});
+			// The dealer's Turn is over until the value of the hand is 17 or higher
+			while (dealerHandValue < 17) {	
+				dealerHand.push( dealCard() );
+				dealerHandValue = calculateHandValue(dealerHand);
+				currentData = await message.edit({
+					content: currentData.content + `\nEl croupier saca ${dealerHand[dealerHand.length - 1].rank}${dealerHand[dealerHand.length - 1].suit} | Mano del Croupier: ${displayHand(dealerHand)} **(${dealerHandValue})**`
+				});
+				if (dealerHandValue > 21) {
+					userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
+					return await message.edit({
+						content: currentData.content + `\n\nEl Croupier se pasó, **¡Ganaste!** <:EZ:901173179882565703>`
+					});
+				}
+			}
+
+			userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
+			// Check all the possible endings...
+			if (playerHandValue > dealerHandValue) // The user wins
+				return await message.edit({
+					content: currentData.content + `\n\n**¡Ganaste! <:EZ:901173179882565703>**`
+				});
+			else if (dealerHandValue > playerHandValue)	// The dealer wins
+				return await message.edit({
+					content: currentData.content + `\n\n**¡Perdiste! <:KEKW:815733223149010964>**`
+				});
+			else 
+				return await message.edit({	// Tie
+					content: currentData.content + `\n\n**¡Empate! <:o_:887001307444023367>**`
+				});
+		}
+	}
+	catch(e){
+		userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
+		return await message.edit({	// Tie
+			content: `**JUEGO CANCELADO**\nTe tardaste un chingo en escoger`,
 			components: []
 		});
-		// The dealer's Turn is over until the value of the hand is 17 or higher
-		while (dealerHandValue < 17) {	
-			dealerHand.push( dealCard() );
-			dealerHandValue = calculateHandValue(dealerHand);
-			currentData = await message.edit({
-				content: currentData.content + `\nEl croupier saca ${dealerHand[dealerHand.length - 1].rank}${dealerHand[dealerHand.length - 1].suit} | Mano del Croupier: ${displayHand(dealerHand)} **(${dealerHandValue})**`
-			});
-			if (dealerHandValue > 21) {
-				userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
-				return await message.edit({
-					content: currentData.content + `\n\nEl Croupier se pasó, **¡Ganaste!** <:EZ:901173179882565703>`
-				});
-			}
-		}
-
-		userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
-		// Check all the possible endings...
-		if (playerHandValue > dealerHandValue) // The user wins
-			return await message.edit({
-				content: currentData.content + `\n\n**¡Ganaste! <:EZ:901173179882565703>**`
-			});
-		else if (dealerHandValue > playerHandValue)	// The dealer wins
-			return await message.edit({
-				content: currentData.content + `\n\n**¡Perdiste! <:KEKW:815733223149010964>**`
-			});
-		else 
-			return await message.edit({	// Tie
-				content: currentData.content + `\n\n**¡Empate! <:o_:887001307444023367>**`
-			});
 	}
 }
 
