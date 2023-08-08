@@ -1,4 +1,4 @@
-module.exports = async (client, message) => {
+module.exports = async (client, userStates, message) => {
 	if (message.author.bot || !message.content.startsWith("!")) return;
 	const args = message.content.slice(1).trim().split(" ").filter( arg => arg );
 	const cmd = args.shift()?.toLowerCase();
@@ -9,5 +9,5 @@ module.exports = async (client, message) => {
 	if (command && command.inVoiceChannel && !message.member.voice.channel) 
 		return message.channel.send(`Tienes que estar en un canal de voz, pendejo`);
 	
-	if (command) command.run(client, message, args);
+	if (command) command.run(client, message, args, userStates);
 };

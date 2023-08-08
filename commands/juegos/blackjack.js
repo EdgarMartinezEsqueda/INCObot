@@ -34,7 +34,7 @@ function calculateHandValue(hand) {
 function displayHand(hand) {
   return hand.map( card => `${card.rank}${card.suit}`).join(' ');
 }
-async function game(message, playerHand, dealerHand){
+async function game(message, playerHand, dealerHand, userStates, usuarioId){
 	const playerHandValue = calculateHandValue(playerHand);
 	
 	let currentData = await message.edit({
@@ -42,11 +42,14 @@ async function game(message, playerHand, dealerHand){
 		ephemeral: true,
 	});
 	if (playerHandValue === 21) {
+		userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
 		return await message.edit({
 			content:`${currentData.content}\n**Blackjack! Ganaste!**`,
 			components: []
 		});
-	} else if (playerHandValue > 21) {
+	} 
+	else if (playerHandValue > 21) {
+		userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
 		return await message.edit({
 			content: `${currentData.content}\n\n**Perdiste!** Tus cartas tienen un valor de ${playerHandValue} <:KEKW:815733223149010964>`,
 			components: []
@@ -78,7 +81,7 @@ async function game(message, playerHand, dealerHand){
 	
 	if (userInteraction.customId === "continue") {	// If the user wants to continue deal a card and continue
 		playerHand.push( dealCard() );
-		await game( message, playerHand, dealerHand);
+		await game( message, playerHand, dealerHand, userStates, usuarioId);
 	} 
 	else if (userInteraction.customId === "stop") { // Dealer's Turn
 		let dealerHandValue = calculateHandValue(dealerHand);
@@ -93,11 +96,15 @@ async function game(message, playerHand, dealerHand){
 			currentData = await message.edit({
 				content: currentData.content + `\nEl croupier saca ${dealerHand[dealerHand.length - 1].rank}${dealerHand[dealerHand.length - 1].suit} | Mano del Croupier: ${displayHand(dealerHand)} **(${dealerHandValue})**`
 			});
-			if (dealerHandValue > 21) 
+			if (dealerHandValue > 21) {
+				userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
 				return await message.edit({
 					content: currentData.content + `\n\nEl Croupier se pasó, **¡Ganaste!** <:EZ:901173179882565703>`
 				});
+			}
 		}
+
+		userStates.delete(usuarioId);	// Free the user from the game, this will allow the user to play again
 		// Check all the possible endings...
 		if (playerHandValue > dealerHandValue) // The user wins
 			return await message.edit({
@@ -118,10 +125,14 @@ module.exports = {
     name: "Blackjact",
     aliases: ["bj", "21", "veintiuno"],
     desc: "Jugar al veintiuno",
-    run: async (client, message, args) => {
-		const playerHand = [];
-		const dealerHand = [];
-	
+    run: async (client, message, args, userStates) => {
+		if (userStates.has(message.author.id)) // If the user has already started a game and not finished
+			return message.reply("Acaba el juego anterior, mamón");
+		
+		userStates.add(message.author.id);	// Add the user to the list, and prevent him to start a new game unless he finish this
+
+		const playerHand = [], dealerHand = [];	// 
+		// Get the cards
 		playerHand.push( dealCard() );
 		dealerHand.push( dealCard() );
 		playerHand.push( dealCard() );
@@ -130,7 +141,16 @@ module.exports = {
 		message.reply({
 			content: `Iniciando el juego...`,
 		})
-		.then( mensaje => game( mensaje, playerHand, dealerHand ) );
+		.then( mensaje => {
+			try{
+				game( mensaje, playerHand, dealerHand, userStates, message.author.id );
+			}
+			catch(e){
+				return message.edit({	// Tie
+					content: `**HIJO DE LA VERGAAAAA** QUE NO HAGAS ESO KBRON <:REEeee:901173179106623538>`
+				});
+			}
+		});
     }
 };
 

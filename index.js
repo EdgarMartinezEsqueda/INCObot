@@ -15,6 +15,9 @@ const client = new Discord.Client({
     ]
 });
 
+// Create a Set to store user states
+const userStates = new Set();
+
 require("./config/distube.js")( client );   // Add music commnds
 client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
@@ -22,7 +25,7 @@ client.aliases = new Discord.Collection();
 const requireHandlers = () => {
     ["commands", "events"].forEach( handler => {
         try{
-            require(`./handlers/${handler}`)(client, Discord);
+            require(`./handlers/${handler}`)(client, userStates);
         }
         catch(err){
             console.log(err);
