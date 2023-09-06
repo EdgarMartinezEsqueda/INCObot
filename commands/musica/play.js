@@ -6,7 +6,7 @@ module.exports = {
     run: async (client, message, args) => {
         if(message.channel.id != 885939057144758327 && message.channel.id != 784173263227322389){
             message.delete(); 
-            return message.channel.send(`Ponlo en el canal correcto n, no queremos spam ${message.author} pendejo `);
+            return message.channel.send(`Ponlo en el canal correcto, no queremos spam ${message.author} pendejo `);
         }
  
         if( args.length > 0 ){
