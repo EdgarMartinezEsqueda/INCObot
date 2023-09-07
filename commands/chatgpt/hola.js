@@ -10,12 +10,11 @@ module.exports = {
     desc: "Saluda a la IA",
     run: async (client, message, args) => {
         try {
-            const completion = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: "Hola IA",
-            max_tokens: 100,
+            const completion = await openai.chat.completions.create({
+                messages: [{ role: 'user', content: "Hola IA" + args.join(" ") }],
+                model: 'gpt-3.5-turbo',
             });
-            console.log(completion.data.choices[0]);
+            console.log(completion, completion.data.choices[0]);
             message.channel.send(completion.data.choices[0].text ? completion.data.choices[0].text : 'NADA');
         }
         catch (error) {
