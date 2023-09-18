@@ -8,14 +8,15 @@ module.exports = {
             let num = args.pop(); // The last number HAS TO BE A NUMBER
             //Check if the last argument is a number
             if( isNaN(num) )   return message.reply(`Si no sabes que vrga haces para eso está '!info <comando>'`);	
-
+            if( num > args.length ) num = args.length;
+            
             let equipos = [];
             let loop = args.length / num;
 
             for(let i = 0;  i < loop; i++){ // Loop for create the teams
                 let aux = [];
                 for(let j = 0; j < num; j++){
-                    let pos = Math.floor( Math.random() * (args.length - 0) );
+                    let pos = Math.floor( Math.random() * args.length );
                     aux.push(args[pos]);
                     args.splice(pos,1);
                 }
