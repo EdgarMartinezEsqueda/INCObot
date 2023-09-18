@@ -9,5 +9,12 @@ module.exports = async (client, userStates, message) => {
 	if (command && command.inVoiceChannel && !message.member.voice.channel) 
 		return message.channel.send(`Tienes que estar en un canal de voz, pendejo`);
 	
-	if (command) command.run(client, message, args, userStates);
+	if (command) 
+		try{
+			command.run(client, message, args, userStates);
+		}
+		catch(e){
+			console.log(e);
+			return message.channel.send(`Ha surgido un error, reportalo kbron`);
+		}
 };
