@@ -19,6 +19,7 @@ const client = new Discord.Client({
 const userStates = new Set();
 
 require("./config/distube.js")( client );   // Add music commnds
+require("./config/yearProgress.js")( client );   // Add year progress 'event'
 client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
 
