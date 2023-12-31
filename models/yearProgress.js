@@ -3,7 +3,7 @@ const sequelize = require("../database/database"); // import the db conection
 
 // Create the year progress model, only need the year and the progress
 const yearProgress = sequelize.define( "yearProgress", {
-    id: { type: DataTypes.INTEGER, primaryKey: true },
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     year: { type: DataTypes.INTEGER, allowNull: false },
     progress: { type: DataTypes.INTEGER, allowNull: false },
 }, {
