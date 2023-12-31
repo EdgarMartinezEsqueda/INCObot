@@ -28,5 +28,6 @@ const getProgreso = async ( year ) => {
 
 module.exports = { 
     crearProgreso,
-    updateProgreso
+    updateProgreso,
+    getProgreso
 };
