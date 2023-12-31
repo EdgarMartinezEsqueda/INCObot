@@ -1,10 +1,26 @@
 const cron = require('node-cron');
 
 let lastProgress = -1; // Inicializa el último progreso
+let currentYear = -1; // Inicializa el año
 
 cron.schedule('0 0 * * *', () => {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
+
+  if (year !== currentYear) {
+    // Nuevo año, reinicia el progreso y envía los mensajes
+    if (currentYear !== -1) {
+      console.log(`${currentYear} completado un 100% por ciento`);
+      // Lógica para enviar mensaje de finalización del año anterior
+    }
+
+    currentYear = year;
+    lastProgress = -1;
+
+    console.log(`${year} comenzado un 0% por ciento`);
+    // Lógica para enviar mensaje del inicio del nuevo año
+  }
+
   const firstDayOfYear = new Date(year, 0, 1); // Primer día del año
   const totalDaysInYear = new Date(year, 11, 31).getDate(); // Último día del año
 
