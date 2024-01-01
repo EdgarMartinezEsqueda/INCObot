@@ -3,10 +3,10 @@ const Progreso = require("../models/yearProgress");
 const crearProgreso = async ( year, progress ) => {
     try{
         if( !year || !progress) return { error: "Faltan datos" };
-        const progress = await Progreso.create( { year, progress } );
-        return progress;
+        const result = await Progreso.create( { year, progress } );
+        return result;
     }
-    catch( error ){
+    catch( e ){
         return { message: "An error has occured", error: e };
     }
 };
@@ -14,10 +14,10 @@ const crearProgreso = async ( year, progress ) => {
 const updateProgreso = async ( year, progress ) => {
     try{
         if( !year || !progress) return { error: "Faltan datos" };
-        const progress = await Progreso.update( { progress }, { where: { year } } );
-        return progress;
+        const result = await Progreso.update( { progress }, { where: { year } } );
+        return result;
     }
-    catch( error ){
+    catch( e ){
         return { message: "An error has occured", error: e };
     }
 }

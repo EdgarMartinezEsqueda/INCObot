@@ -1,42 +1,84 @@
-const progress = require("../controllers/ctrlYearProgress");
 const cron = require('node-cron');
+const { createCanvas } = require('canvas')
+const progress = require("../controllers/ctrlYearProgress");
+const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
-let lastProgress = -1; // Inicializa el último progreso
-progress.crearProgreso(2012, 100); // Crea el progreso del año 2012
-let currentYear = progress.getProgreso(2012); // Inicializa el año
-console.log(currentYear);
-module.exports = ( client ) => {
-	console.log( new Date() );
-	cron.schedule('0 0 * * *', () => {
+function daysInYear(year) {
+    return ( ( year % 4 === 0 && year % 100 > 0 ) || year % 400 == 0) ? 366 : 365;
+}
+
+function createImage(year, percentage) {
+    const canvas = createCanvas(500, 150); // w,h
+    const ctx = canvas.getContext('2d');
+  
+    // Draw the background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+    // Draw the margin
+    ctx.fillStyle = 'black';
+    ctx.fillRect(23, 23, 454, 104);
+
+    // Draw the progress bar
+    ctx.fillStyle = 'blue';
+    ctx.fillRect(25, 25, (canvas.width - 50) * percentage / 100, 100);
+  
+    // Draw the year text
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 48px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(year, canvas.width / 2, canvas.height / 2);
+  
+    // Convert the canvas to an image
+	const attach = new AttachmentBuilder(canvas.toBuffer('image/png'), {
+		name: 'image.png',
+	});
+    return attach;
+  }
+
+async function createEmbed(channel, year, percentage, message) {
+	const Embed = new EmbedBuilder()
+		.setTitle(`${year} completado un ${percentage}% por ciento ${message}`)
+		.setImage('attachment://image.png');
+	const attach = createImage(year, percentage);
+
+	return await channel.send( { embeds: [Embed], files: [attach] });
+}
+
+module.exports = async ( client ) => {
+	const lastResults = await progress.getProgreso(new Date().getFullYear()); // Inicializa el último resultado
+	let lastProgress = lastResults.dataValues?.progress ?? -1; // Inicializa el último progreso
+	let currentYear = lastResults.dataValues?.year ?? -1; // Inicializa el año
+	
+	cron.schedule('25 19 * * *', async () => {
+		const channel = await client.channels.cache.get("885939057144758327"); // Get the channel to post these messages
 		const currentDate = new Date();
-		const year = currentDate.getFullYear();
+		const year = /*currentDate.getFullYear()*/ 2024;
 		
 		if (year !== currentYear) {
 			// Nuevo año, reinicia el progreso y envía los mensajes
-			if (currentYear !== -1) {
-			console.log(`${currentYear} completado un 100% por ciento`);
-			// Lógica para enviar mensaje de finalización del año anterior
-			}
+			if (currentYear !== -1) 
+				await createEmbed(channel, currentYear, 100, "");
 		
 			currentYear = year;
 			lastProgress = -1;
-		
-			console.log(`${year} comenzado un 0% por ciento`);
-			// Lógica para enviar mensaje del inicio del nuevo año
+
+			return await createEmbed(channel, year, 0, "**Feliz año nuevo! 🎉🎆🎇**");
 		}
 		
 		const firstDayOfYear = new Date(year, 0, 1); // Primer día del año
-		const totalDaysInYear = new Date(year, 11, 31).getDate(); // Último día del año
+		const totalDaysInYear = daysInYear(year); // Último día del año
 		
 		const elapsedDays = Math.ceil((currentDate - firstDayOfYear) / (1000 * 60 * 60 * 24));
 		const percentage = Math.floor((elapsedDays / totalDaysInYear) * 100);
-		
+
 		if (percentage - lastProgress >= 1) {
 			lastProgress = percentage;
 			console.log(`${year} completado un ${percentage}% por ciento`);
-			// Aquí colocarías la lógica para enviar el mensaje
+			await createEmbed(channel, year, percentage, "");
 		}
 	}, {
 		timezone: 'America/Mexico_City' // Define la zona horaria, puedes ajustarla según tu ubicación
 	});
-}
+};
