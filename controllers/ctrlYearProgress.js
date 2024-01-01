@@ -23,7 +23,7 @@ const updateProgreso = async ( year, progress ) => {
 }
 
 const getProgreso = async ( year ) => {
-    return !year ? -1 : await Progreso.findOne( { where: { year } } ) || -1;
+    return !year ? -1 : await Progreso.findOne( { where: { year } } ) || -1;    //if there is no year, or it's no on the db return -1
 }
 
 module.exports = { 
