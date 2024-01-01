@@ -51,7 +51,7 @@ module.exports = async ( client ) => {
 	let lastProgress = lastResults.dataValues?.progress ?? -1; // Inicializa el último progreso
 	let currentYear = lastResults.dataValues?.year ?? -1; // Inicializa el año
 	
-	cron.schedule('25 19 * * *', async () => {
+	cron.schedule('0 0 * * *', async () => {
 		const channel = await client.channels.cache.get("885939057144758327"); // Get the channel to post these messages
 		const currentDate = new Date();
 		const year = /*currentDate.getFullYear()*/ 2024;
