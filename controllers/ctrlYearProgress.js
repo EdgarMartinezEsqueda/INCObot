@@ -1,9 +1,9 @@
 const Progreso = require("../models/yearProgress");
 
-const crearProgreso = async ( year, progress ) => {
+const crearProgreso = async ( year ) => {
     try{
-        if( !year || !progress) return { error: "Faltan datos" };
-        const result = await Progreso.create( { year, progress } );
+        if( !year ) return { error: "Faltan datos" };
+        const result = await Progreso.create( { year, progress : 0 } );
         return result;
     }
     catch( e ){
