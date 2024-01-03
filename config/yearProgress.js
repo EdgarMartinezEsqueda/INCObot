@@ -39,7 +39,8 @@ function createImage(year, percentage) {
 
 async function createEmbed(channel, year, percentage, message) {
 	const Embed = new EmbedBuilder()
-		.setTitle(`${year} completado un ${percentage}% por ciento ${message}`)
+		.setTitle(`${year} completado un ${percentage}%`)
+		.setDescription(`${message}`)
 		.setImage('attachment://image.png');
 	const attach = createImage(year, percentage);
 
@@ -48,35 +49,33 @@ async function createEmbed(channel, year, percentage, message) {
 
 module.exports = async ( client ) => {
 	const lastResults = await progress.getProgreso(new Date().getFullYear()); // Inicializa el último resultado
-	let lastProgress = lastResults.dataValues?.progress ?? -1; // Inicializa el último progreso
+	let lastProgress = lastResults.dataValues?.progress ?? 0; // Inicializa el último progreso
 	let currentYear = lastResults.dataValues?.year ?? -1; // Inicializa el año
 	
 	cron.schedule('0 0 * * *', async () => {
-		const channel = await client.channels.cache.get("885939057144758327"); // Get the channel to post these messages
+		const channel = await client.channels.cache.get("689251085407354958"); // Get the channel to post these messages
 		const currentDate = new Date();
-		const year = /*currentDate.getFullYear()*/ 2024;
+		const year = currentDate.getFullYear();
 		
-		if (year !== currentYear) {
-			// Nuevo año, reinicia el progreso y envía los mensajes
+		if (year !== currentYear) { // Nuevo año, reinicia el progreso y envía los mensajes
 			if (currentYear !== -1) 
 				await createEmbed(channel, currentYear, 100, "");
 		
 			currentYear = year;
-			lastProgress = -1;
-
+			progress.crearProgreso(year); // Crea un nuevo registro en la base de datos
 			return await createEmbed(channel, year, 0, "**Feliz año nuevo! 🎉🎆🎇**");
 		}
 		
 		const firstDayOfYear = new Date(year, 0, 1); // Primer día del año
-		const totalDaysInYear = daysInYear(year); // Último día del año
+		const totalDaysInYear = daysInYear(year); // dias del año
 		
 		const elapsedDays = Math.ceil((currentDate - firstDayOfYear) / (1000 * 60 * 60 * 24));
 		const percentage = Math.floor((elapsedDays / totalDaysInYear) * 100);
 
 		if (percentage - lastProgress >= 1) {
 			lastProgress = percentage;
-			console.log(`${year} completado un ${percentage}% por ciento`);
-			await createEmbed(channel, year, percentage, "");
+			progress.updateProgreso(year, percentage);
+			return await createEmbed(channel, year, percentage, "");
 		}
 	}, {
 		timezone: 'America/Mexico_City' // Define la zona horaria, puedes ajustarla según tu ubicación
