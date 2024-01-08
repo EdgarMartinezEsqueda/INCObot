@@ -10,7 +10,7 @@ function daysInYear(year) {
 function createImage(year, percentage) {
     const canvas = createCanvas(500, 150); // w,h
     const ctx = canvas.getContext('2d');
-  
+	
     // Draw the background
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -30,20 +30,19 @@ function createImage(year, percentage) {
     ctx.textBaseline = 'middle';
     ctx.fillText(year, canvas.width / 2, canvas.height / 2);
   
-    // Convert the canvas to an image
+    // Convert the canvas to a image
 	const attach = new AttachmentBuilder(canvas.toBuffer('image/png'), {
 		name: 'image.png',
 	});
     return attach;
-  }
+}
 
 async function createEmbed(channel, year, percentage, message) {
 	const Embed = new EmbedBuilder()
 		.setTitle(`${year} completado un ${percentage}%`)
-		.setDescription(`${message}`)
 		.setImage('attachment://image.png');
-	const attach = createImage(year, percentage);
-
+	const attach = createImage(year, percentage); 
+	if(message) Embed.setDescription(message);
 	return await channel.send( { embeds: [Embed], files: [attach] });
 }
 
@@ -71,10 +70,10 @@ module.exports = async ( client ) => {
 		
 		const elapsedDays = Math.ceil((currentDate - firstDayOfYear) / (1000 * 60 * 60 * 24));
 		const percentage = Math.floor((elapsedDays / totalDaysInYear) * 100);
-
+		
 		if (percentage - lastProgress >= 1) {
+			await progress.updateProgreso(year, percentage);
 			lastProgress = percentage;
-			progress.updateProgreso(year, percentage);
 			return await createEmbed(channel, year, percentage, "");
 		}
 	}, {
