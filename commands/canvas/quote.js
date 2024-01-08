@@ -1,0 +1,24 @@
+const { EmbedBuilder } = require('discord.js');
+const ms = require("ms");
+const remind = require("../../controllers/ctrlReminder");
+
+module.exports = {
+    name: "reminder",
+    aliases: ["remind", "recuerda", "recuerdame"],
+    desc: "El bot te recordará algo",
+    run: async (client, message, args) => {
+        // !remind <user> <time> <remind>           // args = [<user>, <time>, <remind>]
+        const mentionedUser = message.mentions.users.first(); // Get the first mentioned user
+        const userToRemind = mentionedUser?.id ?? message.author.id; // if there is no username, get the author
+        
+        if( resultado.error )
+            return message.reply("Escribe bien tu chingadera");
+
+        const Embed = new EmbedBuilder()
+            .setTitle(`Se ha guardado el recordatorio`)
+            .setDescription( `Lo recordaré el ${new Date(time) }` )
+            .setColor('#5D6D7E');
+        
+        return message.channel.send( { embeds: [Embed] } );
+    }
+};
