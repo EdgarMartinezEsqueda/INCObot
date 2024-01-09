@@ -78,8 +78,8 @@ function drawText(text, author, canvasWidth = 500, canvasHeight = 350) {
     let nLines = 5;
 
     // Calcula la anchura y altura del texto
-    const totalWidth = ctx.measureText(text).width;    
-    console.log(ctx.measureText(text).width);
+    const totalWidth = ctx.measureText(text).width;   
+    
     const totalHeight = lineHeight * Math.ceil(ctx.measureText(text).width / maxWidth);
 
     let x = totalWidth > maxWidth ? 0 : maxWidth / 2 - totalWidth / 2 - 25; // Asegura que la posición no sea negativa
