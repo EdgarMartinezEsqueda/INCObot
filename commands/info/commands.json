@@ -214,5 +214,13 @@
         "example": "!bj",
         "aliases": ["bj", "21", "veintiuno"],
         "category": "Juegos"
+    },
+    {
+        "name": "!cita",
+        "description": "¿Alguien se echó una frase digna de recordar? Usa este comando",
+        "usage": "!cita <Frase que quieras citar> | !remind (respondiendo otro mensaje)",
+        "example": "!cita Se lo juro",
+        "aliases": ["quote", "frase", "citar"],
+        "category": "General"
     }
 ]
