@@ -11,10 +11,10 @@ module.exports = async (client, userStates, message) => {
 	
 	if (command) 
 		try{
-			command.run(client, message, args, userStates);
+			await command.run(client, message, args, userStates);
 		}
 		catch(e){
 			console.log(e);
-			return message.channel.send(`Ha surgido un error, reportalo kbron`);
+			return message.reply(`Ha surgido un error con tu comando\nUsa "!info <comando>" para más información sobre ese comando o reportalo kbron`);
 		}
 };
