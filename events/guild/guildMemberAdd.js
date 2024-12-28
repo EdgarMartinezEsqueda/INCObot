@@ -9,8 +9,12 @@ module.exports = async (client,  userStates, member) => {
     const channel = member.guild.channels.cache.find(ch => ch.name === "puros-pretextos" || ch.name === "general");
     await channel.fetch();
 
-    channel.send( {
+    channel.send( { // Mandar un mensaje de bienvenida random
         content: `Bienvenido ${member.user}!`,
         files: [images[random]]
     } );
+    // Asignarle el rol de 'Estudiantes' al nuevo miembro
+    const guild = member.guild;
+    const role = guild.roles.cache.find(role => role.name === "Estudiantes");
+    await member.roles.add(role);
 };
