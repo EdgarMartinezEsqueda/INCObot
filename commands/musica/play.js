@@ -7,7 +7,7 @@ module.exports = {
     desc: "Oir un cumbión",
     inVoiceChannel : true,
     run: async (client, message, args) => {
-        if( canalesAprobados.includes(message.channel.id) ){
+        if( !canalesAprobados.includes(message.channel.id) ){
             message.delete(); 
             return message.channel.send(`Ponlo en el canal correcto, no queremos spam ${message.author} pendejo `);
         }
