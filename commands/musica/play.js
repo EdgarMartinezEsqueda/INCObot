@@ -23,6 +23,3 @@ module.exports = {
             return message.channel.send(`Tienes que poner la canción, pendejo`);
     }
 };
-
-// 885939057144758327
-// 784173263227322389
