@@ -14,7 +14,5 @@ module.exports = async (client,  userStates, member) => {
         files: [images[random]]
     } );
     // Asignarle el rol de 'Estudiantes' al nuevo miembro
-    const guild = member.guild;
-    const role = guild.roles.cache.find(role => role.name === "Estudiantes");
-    await member.roles.add(role);
+    await member.roles.add("Estudiantes");
 };
