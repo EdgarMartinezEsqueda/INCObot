@@ -14,5 +14,7 @@ module.exports = async (client,  userStates, member) => {
         files: [images[random]]
     } );
     // Asignarle el rol de 'Estudiantes' al nuevo miembro
-    await member.roles.add("Estudiantes");
+    const role = member.options.getRole('tribename');
+    await member.roles.add(role);
+    console.log(member);
 };
