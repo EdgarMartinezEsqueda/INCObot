@@ -3,6 +3,7 @@ const { SpotifyPlugin } = require('@distube/spotify');
 const { SoundCloudPlugin } = require('@distube/soundcloud');
 const { YtDlpPlugin } = require('@distube/yt-dlp');
 const { EmbedBuilder } = require("discord.js");
+const ffmpegStatic = require("ffmpeg-static");
 
 /* Music platforms icons. */
 const platforms = {
@@ -30,7 +31,8 @@ module.exports = ( client ) => {
           }),
           new SoundCloudPlugin(),
           new YtDlpPlugin()
-        ]
+        ],
+        ffmpegPath: ffmpegStatic,
     });
     
     client.DisTube
