@@ -222,5 +222,13 @@
         "example": "!cita Se lo juro",
         "aliases": ["quote", "frase", "citar"],
         "category": "General"
+    },
+    {
+        "name": "!toma",
+        "description": "Echale los 🥚s a alguien",
+        "usage": "!toma <usuario>",
+        "example": "!toma @chiquilin",
+        "aliases": ["toma"],
+        "category": "General"
     }
 ]
