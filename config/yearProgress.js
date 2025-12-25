@@ -46,6 +46,20 @@ async function createEmbed(channel, year, percentage, message) {
 	return await channel.send( { embeds: [Embed], files: [attach] });
 }
 
+const specialDates = {
+	"01-01": "**¡Feliz Año Nuevo! INCOgibles 🎉🎆🎇✨ - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes)**",
+	"01-06": "**¡Feliz Día de Reyes! 👑🍰 - Saquen plan para la rosca y un chocolate**",
+	"02-02": "**Aqui se celebra la Constitución (y la candelaria) - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes) **",
+	"02-14": "**¡Feliz Día del Amor y la Amistad! ❤️💕 Como buen amigo depositame 500 varos w, te lo pago la próxima semana**",
+	"03-16": "**Natalicio de Benito Juárez , lo único bueno que dejó ese oaxaco - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes)**",
+	"05-01": "**¡Feliz Día del Trabajo! 💼👷‍♂️ - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes)**",
+	"09-16": "**¡VIVA MÉXICO! 🇲🇽🎊 - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes)**",
+	"11-02": "**Día de Muertos 🕯️🌼💀 - Recordamos a todos los que han recibido democracia 🙏**",
+	"11-16": "**Aqui se celebra la Revolución Mexicana - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes)**",
+	"12-12": "**Aqui en el server hay puro pinche Guadalupano 🙏 **",
+	"12-25": "**¡Feliz Navidad! 🎅🎁✨ - Creo que Santa me dejó 500 varos en tu arbol w - Recuerden que es dia inhabil, no se chambea (si es que chambeas te deben de pagar el triple w, no te apendejes)**",
+};
+
 module.exports = async ( client ) => {
 	const lastResults = await progress.getProgreso(new Date().getFullYear()); // Inicializa el último resultado
 	let lastProgress = lastResults.dataValues?.progress ?? 0; // Inicializa el último progreso
@@ -53,9 +67,16 @@ module.exports = async ( client ) => {
 	
 	cron.schedule('0 0 * * *', async () => {
 		const channel = await client.channels.cache.get("689251085407354958"); // Get the channel to post these messages
+		if(!channel) return;
+		
 		const currentDate = new Date();
 		const year = currentDate.getFullYear();
 		
+		// Formato MM-DD para comparar con el objeto
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const dateKey = `${month}-${day}`;
+
 		if (year !== currentYear) { // Nuevo año, reinicia el progreso y envía los mensajes
 			if (currentYear !== -1) 
 				await createEmbed(channel, currentYear, 100, "");
@@ -76,6 +97,11 @@ module.exports = async ( client ) => {
 			lastProgress = percentage;
 			return await createEmbed(channel, year, percentage, "");
 		}
+
+		if (specialDates[dateKey]) {
+            const festiveMessage = specialDates[dateKey];
+            return await createEmbed(channel, year, percentage, festiveMessage);
+        }
 	}, {
 		timezone: 'America/Mexico_City' // Define la zona horaria, puedes ajustarla según tu ubicación
 	});
