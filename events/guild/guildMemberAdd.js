@@ -13,8 +13,12 @@ module.exports = async (client,  userStates, member) => {
         content: `Bienvenido ${member.user}!`,
         files: [images[random]]
     } );
-    // Asignarle el rol de 'Estudiantes' al nuevo miembro
-    const role = member.options.getRole('tribename');
-    await member.roles.add(role);
-    console.log(member);
+
+    try {
+        const role = member.options.getRole("tribename");
+        await member.roles.add(role);
+    } catch (error) {
+        console.log(member)
+        console.log(error);
+    }
 };
