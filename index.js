@@ -8,27 +8,28 @@ const { EmbedBuilder } = require("discord.js");
 const client = new Discord.Client({
     intents: [
         Discord.GatewayIntentBits.Guilds,
-		Discord.GatewayIntentBits.GuildMessages,
+        Discord.GatewayIntentBits.GuildMessages,
         Discord.GatewayIntentBits.GuildVoiceStates,
-		Discord.GatewayIntentBits.GuildMembers,
-		Discord.GatewayIntentBits.MessageContent,
-    ]
+        Discord.GatewayIntentBits.GuildMembers,
+        Discord.GatewayIntentBits.MessageContent,
+    ],
 });
 
 // Create a Set to store user states
 const userStates = new Set();
 
-require("./config/distube.js")( client );   // Add music commnds
-require("./config/yearProgress.js")( client );   // Add year progress 'event'
+require("./config/distube.js")(client); // Add music commnds
+require("./config/yearProgress.js")(client); // Add year progress 'event'
+
 client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
+client.prefix = process.env.PREFIX;
 
 const requireHandlers = () => {
-    ["commands", "events"].forEach( handler => {
-        try{
+    ["commands", "events"].forEach((handler) => {
+        try {
             require(`./handlers/${handler}`)(client, userStates);
-        }
-        catch(err){
+        } catch (err) {
             console.log(err);
         }
     });
@@ -41,20 +42,21 @@ client.login(process.env.TOKEN).then(() => {
     noPares();
 });
 
-setInterval( async () => {  // get all reminders from database and send them
+setInterval(async () => {
+    // get all reminders from database and send them
     const recordatorios = await Recordatorio.findAll();
-    if( !recordatorios ) return;
-    recordatorios.forEach( recordatorio => {
-        if( recordatorio.tiempo > Date.now() ) return;
-        const user = client.users.cache.get( recordatorio.usuario );
-        
+    if (!recordatorios) return;
+    recordatorios.forEach((recordatorio) => {
+        if (recordatorio.tiempo > Date.now()) return;
+        const user = client.users.cache.get(recordatorio.usuario);
+
         const Embed = new EmbedBuilder()
-        .setColor(0x0099ff)
-        .setTitle('Recordatorio para ti')
-        .setDescription(recordatorio.recordatorio);
+            .setColor(0x0099ff)
+            .setTitle("Recordatorio para ti")
+            .setDescription(recordatorio.recordatorio);
 
-        user?.send( { embeds:   [Embed] } );
+        user?.send({ embeds: [Embed] });
 
-        Recordatorio.destroy( { where: { id: recordatorio.id } } );
+        Recordatorio.destroy({ where: { id: recordatorio.id } });
     });
 }, 5000);
