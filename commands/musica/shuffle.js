@@ -5,7 +5,7 @@ module.exports = {
         const queue = client.DisTube.getQueue(message);
         if (!queue)
             return message.channel.send(`No hay nada en la lista, pendejo 🗿`);
-        queue.shuffle();
+        await queue.shuffle(); // DisTube v5: shuffle() ahora es asíncrono (Promise)
         message.channel.send("Mezcladas las canciones");
     },
 };

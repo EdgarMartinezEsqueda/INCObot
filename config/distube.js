@@ -1,6 +1,8 @@
 const { DisTube } = require("distube");
-const { SpotifyPlugin } = require("@distube/spotify");
+const { YouTubePlugin } = require("@distube/youtube");
 const { SoundCloudPlugin } = require("@distube/soundcloud");
+const { SpotifyPlugin } = require("@distube/spotify");
+const { DeezerPlugin } = require("@distube/deezer");
 const { YtDlpPlugin } = require("@distube/yt-dlp");
 const { EmbedBuilder } = require("discord.js");
 const ffmpegStatic = require("ffmpeg-static");
@@ -15,7 +17,7 @@ const platforms = {
         "https://upload.wikimedia.org/wikipedia/de/thumb/f/f4/SoundCloud_-_Logo.svg/2560px-SoundCloud_-_Logo.svg.png",
 };
 
-const getPlatform = (url) =>
+const getPlatform = (url = "") =>
     Object.keys(platforms).find((platform) => url.includes(platform));
 
 const formatViews = (views) => `${views}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -27,10 +29,16 @@ module.exports = (client) => {
         emitNewSongOnly: true,
         emitAddSongWhenCreatingQueue: false,
         emitAddListWhenCreatingQueue: false,
+        // DisTube v5: YouTube ya no viene integrado. Cada fuente es un plugin.
+        // El orden define la prioridad al validar la URL de entrada; YtDlpPlugin
+        // valida TODAS las URLs (validate() => true), por eso va al final como
+        // "catch-all" para no interceptar a los plugins específicos.
         plugins: [
-            new SpotifyPlugin(),
-            new SoundCloudPlugin(),
-            new YtDlpPlugin(),
+            new YouTubePlugin(), // busca por texto + reproduce YouTube (ExtractorPlugin)
+            new SoundCloudPlugin(), // enlaces de SoundCloud (ExtractorPlugin)
+            new SpotifyPlugin(), // resuelve enlaces de Spotify -> reproduce vía YouTube (InfoExtractorPlugin)
+            new DeezerPlugin(), // resuelve enlaces de Deezer -> reproduce vía YouTube (InfoExtractorPlugin)
+            new YtDlpPlugin(), // catch-all para cualquier otra URL (PlayableExtractorPlugin)
         ],
         ffmpeg: {
             path: ffmpegStatic,
@@ -57,16 +65,16 @@ module.exports = (client) => {
                 },
                 {
                     name: "Reproducciones:",
-                    value: `\` ${formatViews(song.views)} \``,
+                    value: `\` ${formatViews(song.views ?? 0)} \``,
                     inline: true,
                 },
             )
             .setImage(song.thumbnail)
             .setFooter({
-                text: `Añadida por ${song.user.username}`,
-                iconURL: song.user.avatarURL(),
+                text: `Añadida por ${song.user?.username ?? "alguien"}`,
+                iconURL: song.user?.avatarURL(),
             });
-        queue.textChannel.send({ embeds: [Embed] });
+        queue.textChannel?.send({ embeds: [Embed] });
     })
         .on("addSong", (queue, song) => {
             const Embed = new EmbedBuilder()
@@ -80,7 +88,7 @@ module.exports = (client) => {
                 .setDescription(
                     `[${song.name}](${song.url}) - ${song.formattedDuration}`,
                 );
-            queue.textChannel.send({ embeds: [Embed] });
+            queue.textChannel?.send({ embeds: [Embed] });
         })
         .on("addList", (queue, playlist) => {
             const Embed = new EmbedBuilder()
@@ -90,26 +98,29 @@ module.exports = (client) => {
                     iconURL:
                         "https://raw.githubusercontent.com/HELLSNAKES/Music-Slash-Bot/main/assets/music.gif",
                 })
-                .setThumbnail(song.thumbnail)
+                .setThumbnail(playlist.thumbnail)
                 .setDescription(
-                    `[${song.name}](${song.url}) - ${playlist.songs.length} canciones`,
+                    `[${playlist.name}](${playlist.url}) - ${playlist.songs.length} canciones`,
                 );
-            queue.textChannel.send({ embeds: [Embed] });
+            queue.textChannel?.send({ embeds: [Embed] });
         })
-        .on("error", (channel, e) => {
-            if (channel)
-                channel.send(
-                    `⚠ 𝗛𝗮 𝘀𝘂𝗿𝗴𝗶𝗱𝗼 𝘂𝗻 𝗲𝗿𝗿𝗼𝗿 ${e.toString().slice(0, 1974)}`,
+        // DisTube v5: el evento 'error' ahora emite (error, queue, song),
+        // ya NO (channel, error) como en v4.
+        .on("error", (error, queue) => {
+            if (queue?.textChannel)
+                queue.textChannel.send(
+                    `⚠ 𝗛𝗮 𝘀𝘂𝗿𝗴𝗶𝗱𝗼 𝘂𝗻 𝗲𝗿𝗿𝗼𝗿 ${error.toString().slice(0, 1974)}`,
                 );
-            else console.error(e);
+            else console.error(error);
         })
-        .on("empty", (channel) =>
-            channel.send("Ya me dejaron solo, ni pedo... 😢"),
-        )
-        .on("searchNoResult", (message, query) =>
-            message.channel.send(`No encontré nada para ${query} xd`),
+        // DisTube v5: 'empty' emite (queue), ya NO (channel).
+        .on("empty", (queue) =>
+            queue.textChannel?.send("Ya me dejaron solo, ni pedo... 😢"),
         )
         .on("finish", (queue) =>
-            queue.textChannel.send("Ya es toda we! 🗿\nPonte otra 🎶🎵"),
+            queue.textChannel?.send("Ya es toda we! 🗿\nPonte otra 🎶🎵"),
         );
+    // Nota v5: el evento 'searchNoResult' fue eliminado. Cuando una búsqueda no
+    // arroja resultados, DisTube#play lanza un DisTubeError (NO_RESULT); se
+    // maneja con try/catch en commands/musica/play.js.
 };
