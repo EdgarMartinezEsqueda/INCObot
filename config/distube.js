@@ -1,11 +1,12 @@
 const { DisTube } = require("distube");
-const { YouTubePlugin } = require("@distube/youtube");
+const { YouTubeYtDlpPlugin } = require("./youtubePlugin.js");
 const { SoundCloudPlugin } = require("@distube/soundcloud");
 const { SpotifyPlugin } = require("@distube/spotify");
 const { DeezerPlugin } = require("@distube/deezer");
 const { YtDlpPlugin } = require("@distube/yt-dlp");
 const { EmbedBuilder } = require("discord.js");
 const ffmpegStatic = require("ffmpeg-static");
+const { ensureYtDlp } = require("./ytdlp.js");
 
 /* Music platforms icons. */
 const platforms = {
@@ -25,6 +26,11 @@ const formatViews = (views) => `${views}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const EMBED_COLOR = "#666699";
 
 module.exports = (client) => {
+    // Descarga yt-dlp al arrancar si falta, para que la primera canción no espere.
+    ensureYtDlp().catch((e) =>
+        console.error("[yt-dlp] no se pudo preparar el binario:", e.message),
+    );
+
     client.DisTube = new DisTube(client, {
         emitNewSongOnly: true,
         emitAddSongWhenCreatingQueue: false,
@@ -34,14 +40,18 @@ module.exports = (client) => {
         // valida TODAS las URLs (validate() => true), por eso va al final como
         // "catch-all" para no interceptar a los plugins específicos.
         plugins: [
-            new YouTubePlugin(), // busca por texto + reproduce YouTube (ExtractorPlugin)
+            new YouTubeYtDlpPlugin(), // busca en YouTube, reproduce vía yt-dlp (ExtractorPlugin)
             new SoundCloudPlugin(), // enlaces de SoundCloud (ExtractorPlugin)
             new SpotifyPlugin(), // resuelve enlaces de Spotify -> reproduce vía YouTube (InfoExtractorPlugin)
             new DeezerPlugin(), // resuelve enlaces de Deezer -> reproduce vía YouTube (InfoExtractorPlugin)
-            new YtDlpPlugin(), // catch-all para cualquier otra URL (PlayableExtractorPlugin)
+            // update:false -> su auto-actualización re-descarga 18 MB en cada
+            // arranque y puede tumbar el proceso (ver config/ytdlp.js).
+            new YtDlpPlugin({ update: false }), // catch-all para cualquier otra URL
         ],
         ffmpeg: {
-            path: ffmpegStatic,
+            // Si ffmpeg-static no bajó su binario (p.ej. npm ci --ignore-scripts)
+            // devuelve null; en ese caso usamos el ffmpeg del sistema (apt).
+            path: process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg",
         },
     });
 
@@ -107,11 +117,12 @@ module.exports = (client) => {
         // DisTube v5: el evento 'error' ahora emite (error, queue, song),
         // ya NO (channel, error) como en v4.
         .on("error", (error, queue) => {
+            // Siempre al log del VPS: el mensaje de Discord se recorta y se pierde.
+            console.error("[DisTube error]", error);
             if (queue?.textChannel)
                 queue.textChannel.send(
                     `⚠ 𝗛𝗮 𝘀𝘂𝗿𝗴𝗶𝗱𝗼 𝘂𝗻 𝗲𝗿𝗿𝗼𝗿 ${error.toString().slice(0, 1974)}`,
                 );
-            else console.error(error);
         })
         // DisTube v5: 'empty' emite (queue), ya NO (channel).
         .on("empty", (queue) =>
@@ -123,4 +134,15 @@ module.exports = (client) => {
     // Nota v5: el evento 'searchNoResult' fue eliminado. Cuando una búsqueda no
     // arroja resultados, DisTube#play lanza un DisTubeError (NO_RESULT); se
     // maneja con try/catch en commands/musica/play.js.
+
+    // Diagnóstico opcional (DISTUBE_DEBUG=1 en el .env).
+    // Importante: DisTube ignora los códigos de salida 0 y 255 de ffmpeg, así que
+    // un stream que muere al instante NO emite el evento 'error' y la canción
+    // "termina" en silencio. Estos logs son la única forma de verlo; muestran la
+    // línea real de ffmpeg y su código de salida.
+    if (process.env.DISTUBE_DEBUG === "1") {
+        client.DisTube.on("ffmpegDebug", (info) =>
+            console.log("[ffmpeg]", info),
+        ).on("debug", (info) => console.log("[distube]", info));
+    }
 };
