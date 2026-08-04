@@ -5,7 +5,8 @@
     "scripts": {
         "start": "node index.js",
         "dev": "nodemon index.js",
-        "ytdlp:update": "node -e \"require('./config/ytdlp.js').updateYtDlp()\""
+        "ytdlp:update": "node -e \"require('./config/ytdlp.js').updateYtDlp()\"",
+        "musica:diagnostico": "node config/diagnostico.js"
     },
     "author": "",
     "license": "ISC",
@@ -32,8 +33,7 @@
         "node-fetch": "^3.3.2",
         "openai": "^6.32.0",
         "opusscript": "^0.1.1",
-        "sequelize": "^6.37.8",
-        "tenorjs": "^1.0.10"
+        "sequelize": "^6.37.8"
     },
     "keywords": [],
     "devDependencies": {
