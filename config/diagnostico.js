@@ -97,12 +97,25 @@ const ejecutar = (cmd, args) =>
         "-f", "s16le",
         "pipe:1",
     ];
+    // Comando exacto que se ejecuta (para poder reproducirlo a mano si hace falta).
+    console.log(`  cmd: ${ffmpegPath} ${args.join(" ")}`);
     const proceso = spawn(ffmpegPath, args, { windowsHide: true });
     let bytes = 0;
     let stderr = "";
     proceso.stdout.on("data", (d) => (bytes += d.length));
     proceso.stderr.on("data", (d) => (stderr += d));
-    await new Promise((resolve) => proceso.on("close", resolve).on("error", resolve)).then((code) => {
+    await new Promise((resolve) => {
+        proceso.on("close", (code, signal) => resolve({ code, signal }));
+        proceso.on("error", (e) => resolve({ error: e }));
+    }).then(({ code, signal, error }) => {
+        if (error) {
+            mal(`no se pudo LANZAR ffmpeg en '${ffmpegPath}': ${error.message}`);
+            console.log(
+                "\n=> ffmpeg ni siquiera arranca. Comprueba la ruta (FFMPEG_PATH) o\n" +
+                    "   instala ffmpeg en el sistema (sudo apt install ffmpeg).",
+            );
+            return;
+        }
         // 5 s de PCM s16le a 48 kHz estéreo son ~960 000 bytes.
         if (bytes > 100000) {
             ok(`${bytes} bytes de audio en 5 s (código de salida ${code})`);
@@ -112,10 +125,23 @@ const ejecutar = (cmd, args) =>
                     "   de voz (UDP), no en YouTube: revisa que el firewall del VPS deje\n" +
                     "   salir UDP 50000-65535 y que el bot tenga permiso de Hablar.",
             );
+        } else if (signal) {
+            // Código null + señal = ffmpeg murió de golpe (no es un 403 de YouTube).
+            mal(`ffmpeg MURIÓ por señal ${signal} tras leer ${bytes} bytes`);
+            if (stderr.trim()) {
+                console.log("  --- stderr de ffmpeg ---");
+                console.log(stderr.split("\n").slice(-15).join("\n"));
+            }
+            console.log(
+                `\n=> El binario de ffmpeg ('${ffmpegPath}') se está cayendo, NO es\n` +
+                    "   YouTube. Suele pasar con el binario de ffmpeg-static en algunas\n" +
+                    "   distros. Usa el ffmpeg del sistema: instala 'apt install ffmpeg' y\n" +
+                    "   define FFMPEG_PATH=/usr/bin/ffmpeg en el .env (o quita ffmpeg-static).",
+            );
         } else {
             mal(`sólo ${bytes} bytes leídos (código de salida ${code})`);
             console.log("  --- stderr de ffmpeg ---");
-            console.log(stderr.split("\n").slice(-15).join("\n"));
+            console.log(stderr.split("\n").slice(-15).join("\n") || "(vacío)");
             console.log(
                 "\n=> Este es el fallo silencioso: DisTube ignora los códigos 0 y 255,\n" +
                     "   así que la canción se anuncia y salta a 'finish' sin sonar.",
