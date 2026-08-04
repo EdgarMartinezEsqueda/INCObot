@@ -6,6 +6,7 @@ const { DeezerPlugin } = require("@distube/deezer");
 const { YtDlpPlugin } = require("@distube/yt-dlp");
 const { EmbedBuilder } = require("discord.js");
 const ffmpegStatic = require("ffmpeg-static");
+const { generateDependencyReport } = require("@discordjs/voice");
 const { ensureYtDlp } = require("./ytdlp.js");
 
 /* Music platforms icons. */
@@ -25,7 +26,65 @@ const formatViews = (views) => `${views}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 const EMBED_COLOR = "#666699";
 
+/**
+ * Comprueba en el arranque que la cadena de audio de SALIDA está completa:
+ * ffmpeg -> codificador de opus -> cifrado -> UDP. En el VPS es fácil que
+ * @discordjs/opus o la librería de cifrado no se hayan compilado (p.ej. si el
+ * install corrió con los scripts bloqueados) y, cuando falta cualquiera de esas
+ * piezas, la canción se anuncia ('playSong') y salta a 'finish' sin sonar y SIN
+ * emitir 'error'. Este aviso lo hace visible en el log en vez de en silencio.
+ */
+const comprobarAudio = () => {
+    let reporte;
+    try {
+        reporte = generateDependencyReport();
+    } catch {
+        return; // Nunca debe tumbar el arranque; es sólo diagnóstico.
+    }
+    if (process.env.DISTUBE_DEBUG === "1") console.log(reporte);
+
+    // Extrae las líneas "- ..." que hay bajo un título de sección del reporte.
+    const bloque = (titulo) => {
+        const lineas = reporte.split("\n");
+        const i = lineas.findIndex((l) => l.trim() === titulo);
+        if (i === -1) return [];
+        const out = [];
+        for (let j = i + 1; j < lineas.length; j++) {
+            const l = lineas[j].trim();
+            if (!l.startsWith("-")) break; // la sección termina en la línea vacía
+            out.push(l);
+        }
+        return out;
+    };
+    const algunaPresente = (lineas) =>
+        lineas.some((l) => !/not found/i.test(l));
+
+    const avisos = [];
+    if (!algunaPresente(bloque("Opus Libraries")))
+        avisos.push("no hay codificador de opus (@discordjs/opus ni opusscript)");
+    if (!algunaPresente(bloque("Encryption Libraries")))
+        avisos.push("no hay librería de cifrado de voz (libsodium-wrappers, etc.)");
+    const ffmpeg = bloque("FFmpeg");
+    if (!ffmpeg.length || /version:\s*not found/i.test(ffmpeg.join("\n")))
+        avisos.push("ffmpeg no está disponible para @discordjs/voice");
+
+    if (avisos.length) {
+        console.error(
+            "[audio] La cadena de reproducción está incompleta; las canciones " +
+                "pueden anunciarse y saltar a 'finish' sin sonar:",
+        );
+        avisos.forEach((a) => console.error(`  - ${a}`));
+        console.error(
+            "  Reinstala en el VPS permitiendo los scripts de compilación y " +
+                "ejecuta: npm run musica:diagnostico",
+        );
+    }
+};
+
 module.exports = (client) => {
+    // Verifica opus/cifrado/ffmpeg antes de nada: si falta algo, se ve en el log.
+    comprobarAudio();
+
     // Descarga yt-dlp al arrancar si falta, para que la primera canción no espere.
     ensureYtDlp().catch((e) =>
         console.error("[yt-dlp] no se pudo preparar el binario:", e.message),
@@ -40,7 +99,7 @@ module.exports = (client) => {
         // valida TODAS las URLs (validate() => true), por eso va al final como
         // "catch-all" para no interceptar a los plugins específicos.
         plugins: [
-            new YouTubeYtDlpPlugin(), // busca en YouTube, reproduce vía yt-dlp (ExtractorPlugin)
+            new YouTubeYtDlpPlugin(), // YouTube entero vía yt-dlp (ExtractorPlugin)
             new SoundCloudPlugin(), // enlaces de SoundCloud (ExtractorPlugin)
             new SpotifyPlugin(), // resuelve enlaces de Spotify -> reproduce vía YouTube (InfoExtractorPlugin)
             new DeezerPlugin(), // resuelve enlaces de Deezer -> reproduce vía YouTube (InfoExtractorPlugin)
