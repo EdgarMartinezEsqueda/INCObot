@@ -12,7 +12,7 @@ require("dotenv").config();
 const { spawn } = require("child_process");
 const { generateDependencyReport } = require("@discordjs/voice");
 const ffmpegStatic = require("ffmpeg-static");
-const { YouTubeYtDlpPlugin } = require("./youtubePlugin.js");
+const { YouTubeYtDlpPlugin, cabecerasFfmpeg } = require("./youtubePlugin.js");
 const { YTDLP_BIN } = require("./ytdlp.js");
 
 const BUSQUEDA = process.argv.slice(2).join(" ") || "bad bunny titi me pregunto";
@@ -77,12 +77,19 @@ const ejecutar = (cmd, args) =>
     }
 
     paso(4, "ffmpeg leyendo 5 s de audio (como hace DisTube)");
+    // Mismas cabeceras que reenvía getStreamURL a la reproducción real: sin ellas,
+    // desde la IP del VPS YouTube da 403 y ffmpeg lee 0 bytes (el fallo silencioso).
+    const cab = cabecerasFfmpeg(song.httpHeaders);
+    const cabArgs = [];
+    if (cab.user_agent) cabArgs.push("-user_agent", cab.user_agent);
+    if (cab.headers) cabArgs.push("-headers", cab.headers);
     const args = [
         "-reconnect", "1",
         "-reconnect_streamed", "1",
         "-reconnect_delay_max", "5",
         "-analyzeduration", "0",
         "-hide_banner",
+        ...cabArgs,
         "-i", url,
         "-ar", "48000",
         "-ac", "2",

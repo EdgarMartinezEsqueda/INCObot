@@ -181,6 +181,10 @@ class YouTubeYtDlpPlugin extends YouTubePlugin {
             const fallo = await comprobarURL(url, info.http_headers, song);
             if (!fallo) {
                 if (cliente) console.log(`[yt-dlp] usando player_client=${cliente}`);
+                // La URL de googlevideo está firmada para el User-Agent que la
+                // generó; hay que reenviárselo a ffmpeg o YouTube da 403 desde IPs
+                // de datacenter (el VPS). Ver aplicarCabeceras().
+                aplicarCabeceras(this, song, info.http_headers);
                 return url;
             }
             ultimoError = fallo;
@@ -290,4 +294,54 @@ const comprobarURL = async (url, headers, song) => {
     return bloqueoURL(`sólo entregó ${recibidos} bytes antes de cortar`, song);
 };
 
-module.exports = { YouTubeYtDlpPlugin };
+/**
+ * Traduce las cabeceras HTTP que yt-dlp asocia a la URL de audio al formato que
+ * espera ffmpeg (-user_agent y -headers).
+ *
+ * Es la pieza que faltaba y la causa de que suene en Windows pero no en el VPS:
+ * yt-dlp firma la URL de googlevideo para un User-Agent concreto (el del
+ * player_client que la generó). comprobarURL() la valida ENVIANDO esas cabeceras,
+ * así que pasa; pero DisTube lanza ffmpeg sólo con "-i url", SIN cabeceras. Desde
+ * una IP residencial YouTube lo tolera; desde la IP de un centro de datos (el VPS)
+ * responde 403, ffmpeg recibe 0 bytes y sale con código 0, y como DisTube ignora
+ * los códigos 0 y 255 la canción se anuncia ('playSong') y salta a 'finish' sin
+ * sonar y SIN error. Reenviar estas cabeceras hace que la petición de ffmpeg sea
+ * idéntica a la que ya validó comprobarURL.
+ */
+const cabecerasFfmpeg = (headers = {}) => {
+    const entradas = Object.entries(headers).filter(([, v]) => v != null);
+    const ua = entradas.find(([k]) => k.toLowerCase() === "user-agent")?.[1];
+    // El User-Agent va aparte (-user_agent) para no duplicarlo dentro de -headers.
+    const resto = entradas.filter(([k]) => k.toLowerCase() !== "user-agent");
+    const args = {};
+    if (ua) args.user_agent = String(ua);
+    // ffmpeg exige que la cadena de -headers termine en CRLF.
+    if (resto.length)
+        args.headers = resto.map(([k, v]) => `${k}: ${v}`).join("\r\n") + "\r\n";
+    return args;
+};
+
+/**
+ * Inyecta las cabeceras en el ffmpeg de la cola de ESTE servidor para la canción
+ * que está a punto de reproducirse. DisTube crea el DisTubeStream justo después de
+ * llamar a getStreamURL() y vuelca queue.ffmpegArgs.input ANTES de "-i url", que
+ * es donde el protocolo http de ffmpeg lee -user_agent y -headers.
+ */
+const aplicarCabeceras = (plugin, song, headers) => {
+    song.httpHeaders = headers; // lo reutiliza config/diagnostico.js
+    // song.member -> guild -> cola. Sin cola (p.ej. en el diagnóstico) no hay nada
+    // que inyectar: basta con haber dejado song.httpHeaders arriba.
+    let queue;
+    try {
+        queue = song.member && plugin.distube?.getQueue(song.member);
+    } catch {
+        return;
+    }
+    if (!queue) return;
+    queue.ffmpegArgs.input = {
+        ...queue.ffmpegArgs.input,
+        ...cabecerasFfmpeg(headers),
+    };
+};
+
+module.exports = { YouTubeYtDlpPlugin, cabecerasFfmpeg };
